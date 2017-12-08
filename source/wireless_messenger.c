@@ -30,6 +30,8 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "WBN_protocol.h"
+
 /************************************************************************************
 *************************************************************************************
 * Include
@@ -813,14 +815,20 @@ bool_t ConsoleWM()
 #endif
       Serial_Print(mAppSer,(char*)gAppRxPacket->smacPdu.smacPdu, gAllowToBlock_d);
 
+	  
+	  
       // LED toggling starts here //
       // Check if the data packet is 'led1' //
       // Only checking if the 3rd char is '1' actually//
       Serial_Print(mAppSer,"\r\n\r\n>", gAllowToBlock_d);
-      if(gAppRxPacket->smacPdu.smacPdu[3] == '1') {
-    	  LED_ToggleLed(1);
-      }
+      
+	  int code = receiveViaWBN((Packet*) gAppRxPacket->smacPdu.smacPdu);
 
+	  // If we receive a valid message aka LED to turn on
+	  if (code >= 0)
+		LED_ToggleLed(code);	
+	  // else do something (error)
+	  
       // LED toggling ends
       bRxDone = FALSE;
 #if gSmacUseSecurity_c
